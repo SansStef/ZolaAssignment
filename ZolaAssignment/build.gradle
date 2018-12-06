@@ -46,7 +46,18 @@ dependencies {
 	
 	// https://mvnrepository.com/artifact/org.hibernate/hibernate-core
 	compile group: 'org.hibernate', name: 'hibernate-core'
+
+	// https://mvnrepository.com/artifact/org.hibernate/hibernate-entitymanager
+	compile group: 'org.hibernate', name: 'hibernate-entitymanager'
 	
 	// https://mvnrepository.com/artifact/mysql/mysql-connector-java
 	compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.13'
+	
+	// https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa
+	compile group: 'org.springframework.data', name: 'spring-data-jpa'
+	
+	// https://mvnrepository.com/artifact/org.springframework.data/spring-data-rest-webmvc
+	compile group: 'org.springframework.data', name: 'spring-data-rest-webmvc'
+	
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf'
 }

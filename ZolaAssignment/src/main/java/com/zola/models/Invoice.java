@@ -1,24 +1,52 @@
 package com.zola.models;
 
+import java.time.LocalDate;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
+@Table(name = "invoices")
 public class Invoice {
 	
 	@Id
-	@GeneratedValue
-	private int id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@JsonProperty("id")
+	private long id;
+	@Column(name="invoice_number")
+	@JsonProperty("invoice_number")
 	private String invoiceNumber;
+	@Column(name="po_number")
+	@JsonProperty("po_number")
 	private String poNumber;
-	private Date dueDate;
+	@Column(name="due_date")
+	@JsonProperty("due_date")
+	private LocalDate dueDate;
+	@Column(name="amount_cents")
+	@JsonProperty("amount_cents")
 	private long amountCents;
+	@CreationTimestamp
+	@Column(name="created_at")
+	@JsonProperty("created_at")
+	@JsonFormat(pattern="yyyy-MM-dd'T'hh:mm:ssZ")
 	private Date createdAt;
 	
-	
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
 	public String getInvoiceNumber() {
 		return invoiceNumber;
 	}
@@ -31,10 +59,10 @@ public class Invoice {
 	public void setPoNumber(String poNumber) {
 		this.poNumber = poNumber;
 	}
-	public Date getDueDate() {
+	public LocalDate getDueDate() {
 		return dueDate;
 	}
-	public void setDueDate(Date dueDate) {
+	public void setDueDate(LocalDate dueDate) {
 		this.dueDate = dueDate;
 	}
 	public long getAmountCents() {
