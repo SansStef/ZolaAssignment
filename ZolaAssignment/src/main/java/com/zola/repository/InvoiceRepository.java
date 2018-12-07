@@ -18,6 +18,8 @@ public interface InvoiceRepository extends PagingAndSortingRepository<Invoice, L
 	@Query("select i from Invoice i where i.poNumber = ?1 order by createdAt desc")
 	public Page<Invoice> findByPoNumber(@Param("poNumber") String invoiceNumber, Pageable pageable);
 	
-	public Page<Invoice> findAllByOrderByCreatedAtDesc(Pageable pageable);
+	@Query("select i from Invoice i order by createdAt desc")
+	public Page<Invoice> findAll(Pageable pageable);
+	
 	
 }

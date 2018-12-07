@@ -44,7 +44,7 @@ public class InvoiceController {
         // param. decreased by 1.
         int evalPage = (page.orElse(0) < 1) ? INITIAL_PAGE : page.get() - 1;
 
-        Page<Invoice> invoiceList = invoiceRepo.findAllByOrderByCreatedAtDesc(PageRequest.of(evalPage, evalPageSize));
+        Page<Invoice> invoiceList = invoiceRepo.findAll(PageRequest.of(evalPage, evalPageSize));
 
         PagerModel pager = new PagerModel(invoiceList.getTotalPages(),invoiceList.getNumber(),BUTTONS_TO_SHOW);
         
