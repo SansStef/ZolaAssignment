@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- CSS INCLUDE -->
+<link rel="stylesheet"
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+    crossorigin="anonymous"></link>
+<!-- EOF CSS INCLUDE -->
+<style>
+.pagination-centered {
+    text-align: center;
+}
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+.pointer-disabled {
+    pointer-events: none;
+}
+</style>
+</head>
+<body>
+<!-- START PAGE CONTAINER -->
+    <div class="container-fluid">
+        <!-- START PAGE SIDEBAR -->
+        <!-- commented out     <div th:replace="fragments/header :: header"> </div> -->
+        <!-- END PAGE SIDEBAR -->
+        <!-- PAGE TITLE -->
+        <div class="page-title">
+            <h2>
+                <span class="fa fa-arrow-circle-o-left"></span> Invoices
+            </h2>
+        </div>
+        <div class="form-group col-md-7">
+            <button id="createInvoice">Create New</button>
+        </div>
+        <div class="form-group col-md-5">
+            <label>Search By:
+            	<select id="searchType" >
+            		<option value="">All</option>
+            		<option value="invoiceNumber">Invoice Number</option>
+            		<option value="poNumber">PO Number</option>
+            	</select>
+            </label>
+            <label>Value:
+            	<input type="text" id="searchValue"/>
+            </label>
+            <button id="search">Search</button>
+        </div>
+        <!-- END PAGE TITLE -->
+        <div class="row">
+            <table id="invoiceTable" class="table datatable">
+                <thead>
+                    <tr>
+                        <th>Invoice Number</th>
+                        <th>PO Number</th>
+                        <th>Due Date</th>
+                        <th>Amount Cents</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="form-group col-md-1">
+                    <select class="form-control pagination" id="pageSizeSelect">
+                        <option  value="5" >5</option>
+                    	<option  value="10" selected>10</option>
+                    	<option  value="15" >15</option>
+                    	<option  value="20" >20</option>
+                    	<option  value="25" >25</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-11 pagination-centered">
+                    <ul class="pagination">
+                        <li class="firstPage disabled">
+                            <a class="pageLink" href="/">«</a>
+                        </li>
+                        <li class="prevPage disabled">
+                            <a class="pageLink" href="/">←</a>
+                        </li>
+                        <li class='numberPage numberPage1 active'>
+                            <a class="pageLink" href="/">1</a>
+                        </li>
+                        <li class='numberPage numberPage2'>
+                            <a class="pageLink" href="/">2</a>
+                        </li>
+                        <li class='numberPage numberPage3'>
+                            <a class="pageLink" href="/">3</a>
+                        </li>
+                        <li class='numberPage numberPage4'>
+                            <a class="pageLink" href="/">4</a>
+                        </li>
+                        <li class='numberPage numberPage5'>
+                            <a class="pageLink" href="/">5</a>
+                        </li>
+                        <li class="nextPage">
+                            <a class="pageLink" href="/">→</a>
+                        </li>
+                        <li class="lastPage">
+                            <a class="pageLink" href="/">»</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- END PAGE CONTENT -->
+        <!-- END PAGE CONTAINER -->
+	</div>
+
+<div id="dialog" class="form-group" title="New Invoice">
+  <label>Invoice Number: <input type="text" id="invoiceNumber"/></label>
+  <label>PO Number: <input type="text" id="poNumber"/></label>
+  <label>Due Date: <input type="date" id="dueDate"/></label>
+  <label>Amount Cents: <input type="number" id="amountCents"/></label>
+  <button id="saveInvoice">Save</button>
+</div>
+	
+</body>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.1/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+var currentPage = 0;
+var totalPages = 0;
+$(window).bind("load", function() {
+	$(".numberPage").on("click", function(e){
+		e.preventDefault();
+		$(".numberPage").removeClass("active");
+		loadInvoices($(this).find('a').text() - 1, getPageSize());
+		$(this).addClass("active");
+	});
+	$(".firstPage").on("click", function(e){
+		e.preventDefault();
+		loadInvoices(0, getPageSize());
+	});
+	$(".prevPage").on("click", function(e){
+		e.preventDefault();
+		loadInvoices(currentPage - 1, getPageSize());
+	});
+	$(".nextPage").on("click", function(e){
+		e.preventDefault();
+		loadInvoices(currentPage + 1, getPageSize());
+	});
+	$(".lastPage").on("click", function(e){
+		e.preventDefault();
+		loadInvoices(totalPages - 1, getPageSize());
+	});
+	
+	$("#pageSizeSelect").on("change", function(){
+		loadInvoices(0, getPageSize());
+	});
+	
+    loadInvoices(0,10);
+    
+    $("#dialog").dialog({
+        autoOpen : false, modal : true, show : "blind", hide : "blind",  closeText: "" 
+      });
+    
+    $('#createInvoice').on("click", function () {
+        $('#dialog').dialog('open');
+    });
+    
+    $('#saveInvoice').on("click", function(){
+    	var invoiceNumber = $("#invoiceNumber").val();
+    	var poNumber = $("#poNumber").val();
+    	var dueDate = $("#dueDate").val();
+    	var amountCents = $("#amountCents").val();
+    	
+    	saveNewInvoice(invoiceNumber, poNumber, dueDate, amountCents);
+    });
+    
+    $("#search").on("click", function(){
+    	loadInvoices(0, getPageSize());
+    });
+});
+
+function saveNewInvoice(invoiceNumber, poNumber, dueDate, amountCents){
+	$.ajax({
+		method: "POST",
+		async: true,
+		url: "v1/invoices",
+		data: JSON.stringify({ invoice_number: invoiceNumber, po_number: poNumber, due_date: dueDate, amount_cents: amountCents}),
+		contentType: "application/json; charset=utf-8",
+	    dataType: "json",
+		success: function(data) {
+			$('#dialog').dialog('close');
+			loadInvoices(0, getPageSize());
+		},
+		error: function(data){
+			$('#saveInvoice').css('border-color', 'red');
+		}
+	});
+}
+
+function getPageSize(){
+	return $("#pageSizeSelect").val();
+}
+
+function pagesToShow(){
+	var pages = [];
+	var selectedPage = currentPage + 1;
+	
+	if(selectedPage - 2 > 0 ){
+		pages.push(selectedPage - 2);
+	}
+	if(selectedPage - 1 > 0 ){
+		pages.push(selectedPage - 1);
+	}
+	pages.push(selectedPage);
+	
+	var nextPage = selectedPage + 1;
+	while(pages.length < 5 && nextPage <= totalPages){
+		pages.push(nextPage);
+		nextPage = nextPage + 1;
+	}
+	
+	var prevPage = pages[0] - 1;
+	while(pages.length < 5 && prevPage > 0){
+		pages.unshift(prevPage);
+		prevPage = prevPage - 1;
+	}
+	
+	return pages;
+}
+
+function loadInvoices(page, size){
+
+	var search = createSearch();
+	
+	
+	$.ajax({
+		method: "GET",
+		async: true,
+		url: "v1/invoices" + search,
+		data: { page: page, size: size },
+		success: function(data) {
+			handlePageInfo(data);
+			clearTable();
+			handleInvoiceData(data); 
+		}
+	});
+}
+
+function createSearch(){
+	if($("#searchType").val() == ""){
+		return "";
+	}
+	else if ($("#searchType").val() == "poNumber"){
+		return "/search/findByPoNumber?poNumber=" + $("#searchValue").val();
+	}
+
+	else if ($("#searchType").val() == "invoiceNumber"){
+		return "/search/findByInvoiceNumber?invoiceNumber=" + $("#searchValue").val();
+	}
+}
+
+function handlePageInfo(data){
+	currentPage = data.page.number;
+	totalPages = data.page.totalPages;
+	
+	handlePageArrows();
+	handlePageButtons();
+}
+
+function handlePageButtons(){
+	var pages = pagesToShow();
+	
+	$(".numberPage").removeClass("active");
+	
+	for(i = 1; i <= 5; i++){
+		$(".numberPage"+i).find('a').text(pages[i-1]);
+		
+		if(pages[i-1] - 1 == currentPage){
+			$(".numberPage"+i).addClass("active");
+		}
+	}
+}
+
+function handlePageArrows(){
+	if(currentPage <= 0){
+		$(".firstPage, .prevPage").addClass( "disabled" );
+	}
+	else{
+		$(".firstPage, .prevPage").removeClass( "disabled" );
+	}
+	
+	if(currentPage >= totalPages - 1){
+		$(".lastPage, .nextPage").addClass( "disabled" );
+	}
+	else{
+		$(".lastPage, .nextPage").removeClass( "disabled" );
+	}
+}
+
+function clearTable(){
+	$('#invoiceTable tbody').empty();
+}
+
+function handleInvoiceData(data){
+	console.log(data);
+	console.log(data.page);
+	
+	for(var i in data._embedded.invoices){
+		addRow(data._embedded.invoices[i]);
+	}
+}
+
+function addRow(invoice){
+	$('#invoiceTable > tbody:last-child')
+		.append('<tr><th>' +
+		invoice.invoice_number +
+		'</th><th>' + 
+		invoice.po_number +
+		'</th><th>' +
+		invoice.due_date +
+		'</th><th>' +
+		invoice.amount_cents +
+		'</th><th>' +
+		invoice.created_at +
+		'</th></tr>');
+	
+}
+
+</script>
+</html>

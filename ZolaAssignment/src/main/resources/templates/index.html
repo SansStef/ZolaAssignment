@@ -29,7 +29,7 @@
         <!-- PAGE TITLE -->
         <div class="page-title">
             <h2>
-                <span class="fa fa-arrow-circle-o-left"></span> Client Viewer
+                <span class="fa fa-arrow-circle-o-left"></span> Invoices
             </h2>
         </div>
         <!-- END PAGE TITLE -->
@@ -69,28 +69,28 @@
                     <ul class="pagination">
                         <li th:class="${invoiceList.number == 0} ? disabled"><a
                             class="pageLink"
-                            th:href="@{/(pageSize=${selectedPageSize}, page=1)}">«</a>
+                            th:href="@{/invoices/(pageSize=${selectedPageSize}, page=1)}">«</a>
                         </li>
                         <li th:class="${invoiceList.number == 0} ? disabled"><a
                             class="pageLink"
-                            th:href="@{/(pageSize=${selectedPageSize}, page=${invoiceList.number})}">←</a>
+                            th:href="@{/invoices/(pageSize=${selectedPageSize}, page=${invoiceList.number})}">←</a>
                         </li>
                         <li
                             th:class="${invoiceList.number == (page - 1)} ? 'active pointer-disabled'"
                             th:each="page : ${#numbers.sequence(pager.startPage, pager.endPage)}">
                             <a class="pageLink"
-                            th:href="@{/(pageSize=${selectedPageSize}, page=${page})}"
+                            th:href="@{/invoices/(pageSize=${selectedPageSize}, page=${page})}"
                             th:text="${page}"></a>
                         </li>
                         <li
                             th:class="${invoiceList.number + 1 == invoiceList.totalPages} ? disabled">
                             <a class="pageLink"
-                            th:href="@{/(pageSize=${selectedPageSize}, page=${invoiceList.number + 2})}">→</a>
+                            th:href="@{/invoices/(pageSize=${selectedPageSize}, page=${invoiceList.number + 2})}">→</a>
                         </li>
                         <li
                             th:class="${invoiceList.number + 1 == invoiceList.totalPages} ? disabled">
                             <a class="pageLink"
-                            th:href="@{/(pageSize=${selectedPageSize}, page=${invoiceList.totalPages})}">»</a>
+                            th:href="@{/invoices/(pageSize=${selectedPageSize}, page=${invoiceList.totalPages})}">»</a>
                         </li>
                     </ul>
                 </div>
